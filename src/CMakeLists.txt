@@ -15,7 +15,7 @@ set(GQTEN_BASIC_SRC
   #utils.cc
   #timer.cc
   #ten_trans.cc
-  qn/qn.cc
+  #qn/qn.cc
   #qnsector.cc
   #index.cc
   )

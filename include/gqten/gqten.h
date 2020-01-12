@@ -25,14 +25,12 @@ namespace gqten {
 
 
 // Quantum number.
+// Quantum number value.
 class QNVal;
 using QNValPtr = std::shared_ptr<QNVal>;
 
-
 class QNVal {
 public:
-  QNVal() = default;
-
   virtual QNValPtr Clone(void) const = 0;
 
   virtual size_t Hash(void) const = 0;
@@ -45,7 +43,6 @@ public:
 
   virtual void Dump(std::ofstream &ofs) = 0;
 };
-
 
 using QNValPtrVec = std::vector<QNValPtr>;
 
@@ -83,6 +80,7 @@ private:
 };
 
 
+// Quantum number name-value pair.
 struct QNNameVal {
   QNNameVal() = default;
   QNNameVal(const std::string &nm, const QNVal &&val): name(nm) {
@@ -93,20 +91,24 @@ struct QNNameVal {
   QNValPtr pval;
 };
 
+using QNNameValVec = std::vector<QNNameVal>;
 
+
+// Quantum number.
+template <typename... QNValTs>
 class QN {
 friend std::ifstream &bfread(std::ifstream &, QN &);
 friend std::ofstream &bfwrite(std::ofstream &, const QN &);
 
 public:
   QN(void);
-  QN(const std::vector<QNNameVal> &);
+  QN(const QNNameValVec &);
   QN(const QNValPtrVec &);
 
   QN(const QN &);
   QN &operator=(const QN &);
 
-  std::size_t Hash(void) const;
+  std::size_t Hash(void) const { return hash_; };
 
   QN operator-(void) const;
   QN &operator+=(const QN &);
@@ -118,17 +120,24 @@ private:
   std::size_t CalcHash(void) const;
 };
 
-QN operator+(const QN &, const QN &);
 
-QN operator-(const QN &, const QN &);
+template<typename... LhsQNValTs, typename... RhsQNValTs>
+QN<LhsQNValTs...> operator+(
+    const QN<LhsQNValTs...> &, const QN<RhsQNValTs...> &);
 
-bool operator==(const QN &, const QN &);
+template<typename... LhsQNValTs, typename... RhsQNValTs>
+QN<LhsQNValTs...> operator-(
+    const QN<LhsQNValTs...> &, const QN<RhsQNValTs...> &);
 
-bool operator!=(const QN &, const QN &);
+template<typename... LhsQNValTs, typename... RhsQNValTs>
+bool operator==(const QN<LhsQNValTs...> &, const QN<RhsQNValTs...> &);
 
-std::ifstream &bfread(std::ifstream &, QN &);
+template<typename... LhsQNValTs, typename... RhsQNValTs>
+bool operator!=(const QN<LhsQNValTs...> &, const QN<RhsQNValTs...> &);
 
-std::ofstream &bfwrite(std::ofstream &, const QN &);
+//std::ifstream &bfread(std::ifstream &, QN &);
+
+//std::ofstream &bfwrite(std::ofstream &, const QN &);
 
 
 //// Quantum number sector.
@@ -599,6 +608,7 @@ std::ofstream &bfwrite(std::ofstream &, const QN &);
 
 
 //// Include implementation details.
+#include "gqten/detail/qn_impl.h"
 //#include "gqten/detail/qnblock_impl.h"
 //#include "gqten/detail/gqtensor_impl.h"
 //#include "gqten/detail/ten_ctrct_impl.h"

@@ -15,6 +15,7 @@
 namespace gqten {
 
 
+template <typename... QNValTs>
 class QN;
 
 
